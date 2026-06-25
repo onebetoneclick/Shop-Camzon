@@ -799,12 +799,12 @@
             setInterval(() => {
                 if (checkInternetConnection()) {
                     if(dot) dot.style.backgroundColor = 'var(--success)';
-                    if(txt) txt.innerText = 'SIGNAL: GOOD';
+                    if(txt) txt.innerText = 'SIGNAL STRENGHT: GOOD';
                 } else {
                     if(dot) dot.style.backgroundColor = 'var(--danger)';
-                    if(txt) txt.innerText = 'SIGNAL: OFFLINE';
+                    if(txt) txt.innerText = 'SIGNAL STRENGHT: OFFLINE';
                 }
-            }, 2500); 
+            }, 100); 
         }
 
         // Initialize active signal processes smoothly on startup
@@ -1028,7 +1028,7 @@
 
             totalDisplay.innerText = formatCurrencyDisplay(totalCfaAccumulator);
         }
-        function goToInformationPage() {
+                function goToInformationPage() {
             if (cart.length === 0) return;
             showViewWithLoader('checkoutView', 'Opening Delivery Module...', 'Setting up secure transaction protocols...');
         }
@@ -1037,8 +1037,8 @@
             return cart.reduce((sum, item) => sum + item.baseCfaPrice, 0);
         }
 
-        // Handles data merging loops and the requested 2.5-second professional delay screen 
-        async function startPaystackProcess() {
+        // Runs for exactly 5 seconds without executing any unpredictable network queries
+        function startPaystackProcess() {
             const email = document.getElementById('emailAddress').value;
             const name = document.getElementById('fullName').value;
             const phone = document.getElementById('phoneNumber').value;
@@ -1054,29 +1054,21 @@
             document.getElementById('loaderTitleMessage').innerText = "Merging ur details pls wait";
             document.getElementById('loaderSubtextMessage').innerText = "Linking delivery profiles with payment gateway configurations...";
             
+            // Show the loading screen immediately
             loader.style.display = 'flex';
 
-            // Active network validation check
-            if(!checkInternetConnection()) {
-                loader.style.display = 'none';
-                triggerError("Network Error", "Network Error: Service is not responding. Kindly try again later.");
-                return;
-            }
-
-            // Enforces the professional 1-second detail merging loop before opening Paystack
+            // Strict 5-second loading overlay screen delay loop
             setTimeout(() => {
                 loader.style.display = 'none';
                 launchSecureGateway(email, name, phone, address, totalCfaAmount);
-            }, 100);
+            }, 5000);
         }
 
         function launchSecureGateway(email, name, phone, address, totalCfaAmount) {
-            // Dual-currency routing calibration logic
+            // Dual-currency routing logic conversion
             const finalConvertedNairaAmount = Math.round((totalCfaAmount * NGN_EXCHANGE_RATE) * 100); 
 
             const itemsSummary = cart.map(item => `${item.name} (${item.quantity} Pcs)`).join(", ");
-
-            // Format final invoice displays based on active currency selections at purchase time
             const invoiceFormattedTotal = formatCurrencyDisplay(totalCfaAmount);
 
             latestTransactionData = {
@@ -1089,10 +1081,8 @@
             };
 
             try {
-                // ⚡ SECURE PAYSTACK V2 TRANSACTION LAUNCHER:
-                const paystack = new PaystackPop();
-                
-                paystack.newTransaction({
+                // ⚡ STABLE PAYSTACK CLASSIC POP ENGINE CHECKOUT INITIALIZER:
+                let handler = PaystackPop.setup({
                     key: PAYSTACK_PUB_KEY,
                     email: email,
                     amount: finalConvertedNairaAmount, 
@@ -1107,8 +1097,8 @@
                             { display_name: "User View Currency", variable_name: "checkout_currency", value: currentCurrency }
                         ]
                     },
-                    onSuccess: function(response) {
-                        // Populate the all-inclusive full-information invoice fields dynamically
+                    callback: function(response) {
+                        // Populate full-information data fields into invoice rows dynamically
                         document.getElementById('receiptRef').innerText = `REF: ${response.reference}`;
                         document.getElementById('receiptName').innerText = latestTransactionData.name;
                         document.getElementById('receiptEmail').innerText = latestTransactionData.email;
@@ -1123,12 +1113,16 @@
 
                         document.getElementById('receiptModal').style.display = 'flex';
                     },
-                    onCancel: function() {
+                    onClose: function() {
                         triggerError("Pipeline Closed", "The secure transaction window was dismissed before verification.");
                     }
                 });
+                
+                // Open the modal iframe window
+                handler.openIframe();
+                
             } catch (error) {
-                triggerError("Network Error", "Network Error: Service is not responding. Kindly try again later.");
+                triggerError("Gateway Connection Error", "Could not connect to payment gateway. Please check your data connection and try again.");
                 console.error(error);
             }
         }
@@ -1144,10 +1138,8 @@
             document.getElementById('loaderSubtextMessage').innerText = "Converting layout to high-resolution graphic asset...";
             loader.style.display = 'flex';
 
-            // Compiles the HTML node structure directly into a downloadable image file stream
             htmlToImage.toPng(targetElement, { quality: 1.0, backgroundColor: '#ffffff' })
                 .then(function (dataUrl) {
-                    // Triggers physical file download directly to the user's storage
                     const link = document.createElement('a');
                     link.download = `Invoice-${Date.now()}.png`;
                     link.href = dataUrl;
@@ -1155,8 +1147,7 @@
 
                     loader.style.display = 'none';
 
-                    // Formulate full-information text summary and open WhatsApp
-                    const whatsappMessage = `*🧾 SHOP CAMZON COMPREHENSIVE PURCHASE RECORD*\n\n` +
+                    const whatsappMessage = `*🧾 MEGASHOP COMPREHENSIVE PURCHASE RECORD*\n\n` +
                                             `*Full Name:* ${latestTransactionData.name}\n` +
                                             `*Email Profile:* ${latestTransactionData.email}\n` +
                                             `*Contact Line:* ${latestTransactionData.phone}\n` +
